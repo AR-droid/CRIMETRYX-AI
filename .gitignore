@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Uploads and generated files
+backend/uploads/
+backend/models_3d/
+backend/reports/
+
+# Testing
+coverage/
+
+# Gemini
+.gemini/
+*.mp4
+test.py
+scene.bin
+scene.gltf
