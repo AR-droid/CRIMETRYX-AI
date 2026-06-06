@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: crimetryx-ai-backend
+    env: python
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      cd ../ml_model && python data/generate_fir_dataset.py && python train_models.py
+    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///crimetryx.db
+      - key: PYTHON_VERSION
+        value: "3.11.0"

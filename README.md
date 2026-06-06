@@ -1,196 +1,177 @@
-Crimetryx AI
-Agentic AI–Driven 3D Crime Scene Analysis with FIR-Based Modus Operandi Intelligence
-Overview
+# CRIMETRYX AI
+
+Agentic AI-Driven Crime Scene Analysis with ML-Powered FIR Intelligence
+
+---
+
+## Overview
+
+CRIMETRYX AI is a forensic intelligence platform combining 3D crime scene reconstruction, multi-agent AI reasoning, and a machine learning layer trained on First Information Report (FIR) data. It predicts crime types, assesses recidivism risk, scores suspect investigation priority, and matches modus operandi patterns — powered by four models: LSTM, Random Forest, Logistic Regression, and Gradient Boosting.
+
+Built for the Amazon ML Summer School.
+
+---
+
+## Directory Structure
+
+```
+CRIMETRYX-AI/
+|
+|-- backend/                        Flask REST API
+|   |-- app.py                      Main server (cases, agents, ML routes)
+|   |-- agents.py                   Multi-agent AI reasoning via GROQ LLM
+|   |-- ml_service.py               ML inference service (loads all models)
+|   |-- models.py                   SQLAlchemy database models
+|   |-- kiri_service.py             3D photogrammetry integration
+|   |-- report_generator.py         PDF forensic report generation
+|   |-- requirements.txt            Python dependencies
+|   |-- Procfile                    Gunicorn start command
+|   |-- render.yaml                 Render deployment config
+|   `-- .env.example                Environment variable reference
+|
+|-- frontend/                       React + Vite web application
+|   |-- src/
+|   |   |-- App.jsx                 Root router
+|   |   `-- pages/
+|   |       |-- DashboardPage.jsx   Investigator dashboard
+|   |       |-- MLDashboard.jsx     ML intelligence panel
+|   |       |-- PredictionsPage.jsx Crime prediction and suspect mapping
+|   |       |-- SceneViewerPage.jsx Interactive 3D crime scene viewer
+|   |       |-- WorkflowCanvasPage.jsx  Agent workflow canvas
+|   |       |-- CaseSetupPage.jsx   Case creation
+|   |       |-- NetworkPage.jsx     Suspect network graph
+|   |       |-- ReportPage.jsx      Report export
+|   |       `-- LoginPage.jsx       Authentication
+|   `-- vercel.json                 Vercel deployment config
+|
+|-- ml_model/                       Machine learning pipeline
+|   |-- data/
+|   |   |-- generate_fir_dataset.py Synthetic FIR dataset generator
+|   |   |-- fir_dataset.csv         3,000-record FIR dataset
+|   |   `-- fir_dataset_sample.json 50-record JSON preview
+|   |-- train_models.py             Training script (all 4 models)
+|   |-- train_lstm_only.py          LSTM-only training script
+|   |-- mo_vectorizer.py            TF-IDF modus operandi vectorizer
+|   `-- saved_models/
+|       `-- training_metrics.json   Accuracy, F1, AUC-ROC per model
+|
+|-- render.yaml                     Root-level Render deployment config
+`-- README.md
+```
+
+---
+
+## Machine Learning Pipeline
+
+### Dataset
+
+`fir_dataset.csv` — 3,000 synthetic FIR records with 17 features.
+
+| Feature | Description |
+|---|---|
+| crime_type | One of 10 crime categories (target for classification) |
+| location_type | Type of location where crime occurred |
+| time_of_day | Time window of the crime |
+| weapon_used | Weapon type or none |
+| entry_method | How suspect gained access |
+| target_type | Individual, household, commercial, etc. |
+| suspect_age_group | Suspect age bracket |
+| prior_record | Binary: prior criminal history |
+| accomplice_count | Number of accomplices |
+| severity_score | Crime severity 1-10 |
+| mo_text | Natural language modus operandi description |
+| recidivism | Binary label: repeat offender (target for LR model) |
+
+### Models
+
+| Model | Task | Accuracy | Notes |
+|---|---|---|---|
+| LSTM | Crime type prediction | — | Embedding + LSTM(128) + LSTM(64) + Softmax |
+| Random Forest | Crime type classification | 100% | 200 estimators, class_weight=balanced |
+| Logistic Regression | Recidivism risk | 59% / AUC 0.63 | TF-IDF MO text + numeric features |
+| Gradient Boosting | Suspect priority scoring | 65% | Low / Medium / High priority |
+
+To retrain locally:
+```bash
+python3 ml_model/data/generate_fir_dataset.py
+python3 ml_model/train_models.py
+```
+
+### ML API Endpoints
+
+| Method | Endpoint | Model |
+|---|---|---|
+| POST | /api/ml/predict-crime-type | Random Forest |
+| POST | /api/ml/predict-crime-type-lstm | LSTM |
+| POST | /api/ml/predict-recidivism | Logistic Regression |
+| POST | /api/ml/predict-suspect-priority | Gradient Boosting |
+| POST | /api/ml/mo-similarity | TF-IDF cosine similarity |
+| POST | /api/ml/mo-top-matches | Top-k similar FIRs |
+| GET  | /api/ml/model-metrics | Training metrics for all models |
 
-Crimetryx AI is an advanced forensic intelligence platform that combines 3D crime scene reconstruction, agentic artificial intelligence, FIR-based modus operandi (MO) analysis, and blockchain-backed evidence integrity to support transparent, explainable, and auditable crime investigations.
+---
 
-The system transforms traditional static crime scene documentation into an interactive, reasoning-driven digital workflow, enabling investigators to understand what happened, how it happened, and how it aligns with historical criminal behavior.
+## Agentic AI System
 
-Crimetryx AI is an evolution of the original Crimetryx project, which focused on extracting and analyzing modus operandi patterns from FIR data using NLP and machine learning. This version extends that intelligence into the physical world through 3D reconstruction and multi-agent reasoning.
+| Agent | Responsibility |
+|---|---|
+| Scene Interpreter | Spatial analysis, entry/exit points, visibility |
+| Evidence Reasoner | Bloodstain analysis, weapon trajectories |
+| Timeline Builder | Generates probabilistic crime scenarios |
+| Hypothesis Challenger | Flags contradictions, revises confidence |
 
-Problem Statement
+All agent reasoning is logged with SHA-256 hashes and displayed in the workflow canvas.
 
-Crime scene investigation in India still relies largely on photographs, handwritten notes, and manual sketches. These methods often fail to preserve spatial context, event sequencing, and structured reasoning, leading to ambiguity, weak courtroom explainability, and delays in justice.
+---
 
-Crimetryx AI addresses this gap by digitizing crime scenes into 3D environments and applying transparent, agentic AI reasoning combined with FIR-based behavioral intelligence.
+## Local Setup
 
-Key Capabilities
+### Backend
 
-3D reconstruction of crime scenes from smartphone video
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env          # add your GROQ_API_KEY
+python3 app.py                 # runs on http://localhost:5000
+```
 
-FIR text analysis and modus operandi extraction
+### Frontend
 
-Automatic mapping of Crime IDs to potential suspects
+```bash
+cd frontend
+npm install
+npm run dev                    # runs on http://localhost:5173
+```
 
-Multi-agent AI reasoning with visible decision paths
+Navigate to `/ml-dashboard` for the ML intelligence panel.
 
-Explainable hypothesis generation and contradiction detection
+---
 
-Blockchain-backed evidence integrity and audit trail
+## Deployment
 
-Court-ready forensic report generation
+### Backend — Render
 
-System Architecture (High-Level)
-Crime Scene Video / FIR Data
-        ↓
-Photogrammetry + NLP Processing
-        ↓
-3D Scene + MO Knowledge Graph
-        ↓
-Agentic AI Reasoning (CrewAI)
-        ↓
-Explainable Hypotheses & Reports
+1. Go to [render.com](https://render.com) and create a new Web Service.
+2. Connect this GitHub repository.
+3. Render will detect `render.yaml` automatically.
+4. Add `GROQ_API_KEY` in the Environment tab.
 
-Agentic AI Design
+### Frontend — Vercel
 
-Crimetryx AI uses a multi-agent architecture where each agent has a distinct forensic responsibility. All agents are visible to the user through an n8n-style workflow interface.
+1. Go to [vercel.com](https://vercel.com) and import this repository.
+2. Set the Root Directory to `frontend/`.
+3. After Render deploys, copy your Render URL into `frontend/vercel.json` under `destination`.
+4. Deploy.
 
-Agents in the System
-Scene Interpreter Agent
+---
 
-Analyzes 3D geometry
+## Tech Stack
 
-Identifies entry and exit points
-
-Computes distances and visibility
-
-Establishes spatial constraints
-
-Evidence Reasoning Agent
-
-Evaluates evidence placement
-
-Analyzes bloodstain directionality
-
-Assesses weapon reachability
-
-Detects signs of struggle or staging
-
-Timeline Reconstruction Agent
-
-Generates multiple plausible event sequences
-
-Assigns probabilities to each scenario
-
-Explicitly represents uncertainty
-
-Hypothesis Challenger Agent
-
-Critically evaluates all hypotheses
-
-Flags logical and spatial contradictions
-
-Penalizes inconsistent scenarios
-
-Improves explainability and trust
-
-FIR and Modus Operandi Intelligence
-
-Crimetryx AI integrates the original Crimetryx FIR analysis pipeline.
-
-FIR Processing
-
-FIR narratives are processed using NLP
-
-Extracted features include:
-
-Entry methods
-
-Weapons or tools used
-
-Target patterns
-
-Time-of-day behavior
-
-Crime sequence
-
-Modus Operandi Knowledge Base
-
-MO patterns are stored as vectors and graphs
-
-Suspects accumulate behavioral signatures over time
-
-Enables crime-to-suspect mapping and pattern similarity scoring
-
-Role of MO in 3D Reasoning
-
-Agent-generated hypotheses are cross-validated against historical MO patterns to determine whether a crime aligns with known behavior or represents deviation or staging.
-
-Crime ID to Suspect Mapping Workflow
-
-Investigator enters a Crime ID or FIR reference
-
-FIR data is retrieved and parsed
-
-Modus operandi features are extracted
-
-Features are matched against the suspect database
-
-Suspects are ranked using:
-
-MO similarity
-
-Location proximity
-
-Crime history
-
-Results are displayed as risk-scored suspect cards
-
-This process supports investigative prioritization and does not automate guilt attribution.
-
-3D Crime Scene Reconstruction
-
-Input: Smartphone video or image sequence
-
-Process: Photogrammetry-based reconstruction
-
-Output: Textured 3D mesh with preserved spatial geometry
-
-Evidence Annotation
-
-Evidence is placed directly within the 3D scene
-
-Each evidence item stores:
-
-Spatial coordinates
-
-Metadata
-
-Timestamp
-
-Cryptographic hash
-
-Blockchain and Evidence Integrity
-
-To ensure trust and auditability:
-
-Evidence metadata is hashed using SHA-256
-
-Hashes are recorded on a blockchain network
-
-An immutable chain of custody is maintained
-
-Any tampering is immediately detectable
-
-Sensitive evidence data remains off-chain; only hashes are stored on-chain.
-
-Visualization and User Interface
-UI Components
-
-Investigator dashboard
-
-Crime prediction and suspect mapping page
-
-Agent workflow canvas (n8n-style)
-
-Interactive 3D crime scene viewer
-
-Timeline and scenario comparison panels
-
-Agent reasoning and audit logs
-
-Forensic report export interface
-
-All AI reasoning remains visible, inspectable, and auditable.
-<img width="552" height="572" alt="Screenshot 2025-12-27 at 9 46 57 AM" src="https://github.com/user-attachments/assets/bb3e7270-5389-429a-b737-390ebac2e35f" />
-
+| Layer | Technology |
+|---|---|
+| ML | TensorFlow/Keras, scikit-learn, TF-IDF |
+| Backend | Flask, SQLAlchemy, GROQ API |
+| Frontend | React, Vite |
+| 3D Viewer | Three.js |
+| Deployment | Render (backend), Vercel (frontend) |
+| Evidence Integrity | SHA-256 chain of custody |

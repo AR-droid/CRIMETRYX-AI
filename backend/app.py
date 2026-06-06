@@ -521,6 +521,95 @@ def serve_model(filename):
 
 
 # =============================================================================
+# ML Intelligence Routes
+# =============================================================================
+
+try:
+    from ml_service import ml_service
+    ML_AVAILABLE = True
+except Exception as _ml_err:
+    ML_AVAILABLE = False
+    print(f'[WARN] ML service unavailable: {_ml_err}')
+
+
+@app.route('/api/ml/predict-crime-type', methods=['POST'])
+def ml_predict_crime_type():
+    """Random Forest: predict crime type from FIR features."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    result = ml_service.predict_crime_type(data)
+    return jsonify(result)
+
+
+@app.route('/api/ml/predict-crime-type-lstm', methods=['POST'])
+def ml_predict_crime_type_lstm():
+    """LSTM: predict crime type from sequential FIR features."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    result = ml_service.predict_crime_type_lstm(data)
+    return jsonify(result)
+
+
+@app.route('/api/ml/predict-recidivism', methods=['POST'])
+def ml_predict_recidivism():
+    """Logistic Regression: predict recidivism risk."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    mo_text = data.pop('mo_text', '')
+    result = ml_service.predict_recidivism(data, mo_text=mo_text)
+    return jsonify(result)
+
+
+@app.route('/api/ml/predict-suspect-priority', methods=['POST'])
+def ml_predict_suspect_priority():
+    """Gradient Boosting: predict suspect investigation priority."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    result = ml_service.predict_suspect_priority(data)
+    return jsonify(result)
+
+
+@app.route('/api/ml/mo-similarity', methods=['POST'])
+def ml_mo_similarity():
+    """Compute cosine similarity between two MO text descriptions."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    text_a = data.get('text_a', '')
+    text_b = data.get('text_b', '')
+    if not text_a or not text_b:
+        return jsonify({'error': 'Both text_a and text_b are required'}), 400
+    result = ml_service.mo_similarity(text_a, text_b)
+    return jsonify(result)
+
+
+@app.route('/api/ml/mo-top-matches', methods=['POST'])
+def ml_mo_top_matches():
+    """Find top-k historically similar FIR MO patterns."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    data = request.get_json() or {}
+    mo_text = data.get('mo_text', '')
+    k = min(int(data.get('k', 5)), 20)
+    if not mo_text:
+        return jsonify({'error': 'mo_text is required'}), 400
+    result = ml_service.top_similar_firs(mo_text, k=k)
+    return jsonify(result)
+
+
+@app.route('/api/ml/model-metrics', methods=['GET'])
+def ml_model_metrics():
+    """Return training metrics for all ML models."""
+    if not ML_AVAILABLE:
+        return jsonify({'error': 'ML models not loaded'}), 503
+    return jsonify(ml_service.get_model_metrics())
+
+
+# =============================================================================
 # Health Check
 # =============================================================================
 
@@ -530,7 +619,8 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'version': '1.0.0'
+        'version': '2.0.0',
+        'ml_available': ML_AVAILABLE
     })
 
 

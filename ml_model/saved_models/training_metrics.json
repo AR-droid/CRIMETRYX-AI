@@ -1,0 +1,69 @@
+{
+  "random_forest": {
+    "model": "RandomForest",
+    "task": "Crime Type Classification",
+    "accuracy": 1.0,
+    "f1_weighted": 1.0,
+    "n_estimators": 200,
+    "classes": [
+      "assault",
+      "burglary",
+      "cybercrime",
+      "drug_offense",
+      "fraud",
+      "kidnapping",
+      "murder",
+      "robbery",
+      "vandalism",
+      "vehicle_theft"
+    ],
+    "top10_feature_importances": {
+      "crime_type_enc": 0.4584180566064166,
+      "severity_score": 0.1804771005540697,
+      "digital_evidence": 0.10110038597361629,
+      "target_type_enc": 0.08054514505831527,
+      "entry_method_enc": 0.07390201236461474,
+      "weapon_used_enc": 0.03847031859234583,
+      "time_of_day_enc": 0.024066439826638447,
+      "state_enc": 0.01262212859094628,
+      "location_type_enc": 0.010525173447660185,
+      "suspect_age_group_enc": 0.008039170427140571
+    }
+  },
+  "logistic_regression": {
+    "model": "LogisticRegression",
+    "task": "Recidivism Risk Prediction",
+    "accuracy": 0.5883,
+    "f1": 0.601,
+    "auc_roc": 0.6258,
+    "classes": [
+      "no_recidivism",
+      "recidivism"
+    ],
+    "solver": "lbfgs"
+  },
+  "gradient_boosting": {
+    "model": "GradientBoosting",
+    "task": "Suspect Priority Scoring",
+    "accuracy": 0.6517,
+    "f1_weighted": 0.6514,
+    "n_estimators": 150,
+    "priority_labels": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "top10_feature_importances": {
+      "prior_record": 0.24830593411708884,
+      "severity_score": 0.24282782373890718,
+      "state_enc": 0.07387857285777655,
+      "weapon_used_enc": 0.06142702499736283,
+      "target_type_enc": 0.05882646503107368,
+      "location_type_enc": 0.05777420700820643,
+      "crime_type_enc": 0.05295974855968046,
+      "entry_method_enc": 0.050542587710386784,
+      "suspect_age_group_enc": 0.04858715110255943,
+      "time_of_day_enc": 0.04325620877141702
+    }
+  }
+}

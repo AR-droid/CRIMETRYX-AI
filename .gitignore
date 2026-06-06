@@ -1,22 +1,32 @@
-# Dependencies
-node_modules/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 .venv/
 venv/
+env/
+*.egg-info/
 
 # Environment
 .env
 .env.local
 .env.*.local
 
-# Build outputs
-dist/
-build/
-
 # Database
 *.db
 *.sqlite
+
+# Flask uploads / generated outputs
+backend/uploads/
+backend/models_3d/
+backend/reports/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Vite build output
+frontend/dist/
 
 # IDE
 .vscode/
@@ -28,19 +38,19 @@ Thumbs.db
 
 # Logs
 *.log
-npm-debug.log*
 
-# Uploads and generated files
-backend/uploads/
-backend/models_3d/
-backend/reports/
-
-# Testing
-coverage/
-
-# Gemini
+# Gemini agent files
 .gemini/
+
+# Large media / 3D artefacts
 *.mp4
-test.py
-scene.bin
-scene.gltf
+*.bin
+*.gltf
+
+# ML model binaries (large – rebuilt by train_models.py on deploy)
+ml_model/saved_models/*.pkl
+ml_model/saved_models/*.h5
+ml_model/saved_models/*.keras
+
+# Keep metrics so the dashboard renders without retraining
+!ml_model/saved_models/training_metrics.json

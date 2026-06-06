@@ -10,6 +10,7 @@ import WorkflowCanvasPage from './pages/WorkflowCanvasPage';
 import ReportPage from './pages/ReportPage';
 import PredictionsPage from './pages/PredictionsPage';
 import NetworkPage from './pages/NetworkPage';
+import MLDashboard from './pages/MLDashboard';
 
 // Context for authentication
 const AuthContext = createContext(null);
@@ -108,6 +109,14 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <ReportPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/ml-dashboard"
+                            element={
+                                <ProtectedRoute>
+                                    <MLDashboard />
                                 </ProtectedRoute>
                             }
                         />
